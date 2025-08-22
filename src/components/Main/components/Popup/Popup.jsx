@@ -1,6 +1,7 @@
 import closeIcon from "../../../../images/CloseIcon.png";
 
 const Popup = ({ title = "", children, onClose }) => {
+  /* console.log(onClose); */
   return (
     <div className="popup" id="popup-edit">
       <div

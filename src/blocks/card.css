@@ -12,17 +12,16 @@
   opacity: 0px;
 }
 .card__info {
- 
   font-size: 24px;
   font-weight: 900;
   text-align: left;
   margin-left: 15px;
   margin-right: 15px;
-  display:flex;
+  display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.card__title{
+.card__title {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -46,13 +45,14 @@
   border: none;
 }
 .card__button:hover {
-  opacity: .7;
+  opacity: 0.7;
 }
-.card__black{
- background-image: url(./../images/Union12.png);
+.card__black {
+  background-image: url(./../images/Union12.png);
 }
 
-.card__trash{
+.card__trash {
+  background-image: url(./../images/Trash.svg);
   height: 19px;
   width: 18px;
   top: 15px;
@@ -64,5 +64,5 @@
   position: absolute;
 }
 .card__trash:hover {
-  opacity: .7;
+  opacity: 0.7;
 }

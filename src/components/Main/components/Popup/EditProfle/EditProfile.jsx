@@ -1,37 +1,59 @@
-const EditProfile = () => {
-  return (
-    <form id="edit-profile-form" class="popup__form" novalidate>
-      <input
-        type="text"
-        className="popup__input"
-        id="input-name"
-        name="name"
-        placeholder="Nombre"
-        minlength="2"
-        maxlength="40"
-        required
-      />
+import { useState, useContext } from "react";
+import CurrentUserContext from "../../../../../contexts/CurrentUserContext";
 
-      <span className="form__input_type_error input-name-error"></span>
+export default function EditProfile() {
+  const currentUser = useContext(CurrentUserContext); // Obtiene el objeto currentUser
 
-      <input
-        type="text"
-        className="popup__input"
-        id="input-hobbie"
-        name="job"
-        placeholder="Acerca de mi"
-        minlength="2"
-        maxlength="200"
-        required
-      />
+  const [name, setName] = useState(currentUser.name); // Agrega la variable de estado para name
+  const [description, setDescription] = useState(currentUser.about); // Agrega la variable de estado para description
 
-      <span className="form__input_type_error input-hobbie-error"></span>
+  const handleNameChange = (event) => {
+    setName(event.target.value); // Actualiza name cuando cambie la entrada
+  };
 
-      <button type="submit" className="popup__button">
-        Guardar
-      </button>
-    </form>
-  );
-};
+  const handleDescriptionChange = (event) => {
+    setDescription(event.target.value); // Actualiza description cuando cambie la entrada
+  };
 
-export default EditProfile;
+  const EditProfile = () => {
+    return (
+      <form id="edit-profile-form" class="popup__form" novalidate>
+        <input
+          className="popup__input"
+          id="input-name"
+          maxLength="40"
+          minLength="2"
+          name="userName"
+          placeholder="Nombre"
+          required
+          type="text"
+          value={name} // Vincula name con la entrada
+          onChange={handleNameChange} // Agrega el controlador onChange
+        />
+
+        <span className="form__input_type_error input-name-error"></span>
+
+        <input
+          className="popup__input"
+          id="input-hobbie"
+          maxLength="200"
+          minLength="2"
+          name="userDescription"
+          placeholder="Acerca de mí"
+          required
+          type="text"
+          value={description} // Vincula description con la entrada
+          onChange={handleDescriptionChange} // Agrega el controlador onChange
+        />
+
+        <span className="form__input_type_error input-hobbie-error"></span>
+
+        <button type="submit" className="popup__button">
+          Guardar
+        </button>
+      </form>
+    );
+  };
+}
+
+/* export default EditProfile; */

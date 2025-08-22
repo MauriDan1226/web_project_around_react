@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import lapiz from "../../../src/Images/vectorLapiz.png";
 import add from "../../../src/Images/Vector+.png";
 import avatar from "../../../src/Images/image.jpg";
@@ -8,54 +8,82 @@ import EditAvatar from "./components/Popup/EditAvatar/EditAvatar.jsx";
 import ImagePopup from "./components/Popup/ImagePopup/ImagePopup.jsx";
 import EditProfile from "./components/Popup/EditProfle/EditProfile.jsx";
 import Card from "./components/Card/Card.jsx";
+import { useEffect } from "react";
+import { api } from "../../utils/api.js";
+import CurrentUserContext from "../../contexts/CurrentUserContext.js";
 
-const cards = [
-  {
-    isLiked: false,
-    _id: "5d1f0611d321eb4bdcd707dd",
-    name: "Yosemite Valley",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_yosemite.jpg",
-    owner: "5d1f0611d321eb4bdcd707dd",
-    createdAt: "2019-07-05T08:10:57.741Z",
-  },
-  {
-    isLiked: false,
-    _id: "5d1f064ed321eb4bdcd707de",
-    name: "Lake Louise",
-    link: "https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_lake-louise.jpg",
-    owner: "5d1f0611d321eb4bdcd707dd",
-    createdAt: "2019-07-05T08:11:58.324Z",
-  },
-];
-
-console.log(cards);
-
-export default function Main() {
-  const [popup, setPopup] = useState(null);
+export default function Main({ onOpenPopup, onClosePopup, popup }) {
+  console.log(onClosePopup);
   const newCardPopup = { title: "Nuevo lugar", children: <NewCard /> };
   const editAvatar = { title: "Editar Avatar", children: <EditAvatar /> };
   const editProfile = { title: "Editar Perfil", children: <EditProfile /> };
   const imagePopup = { title: "Imagen grande", children: <ImagePopup /> };
-  function handleOpenPopup(popup) {
-    setPopup(popup);
+  const [cards, setCards] = useState([]);
+  const { currentUser, handleUpdateUser, hola } =
+    useContext(CurrentUserContext);
+
+  useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        const temCards = await api.getInitialCards();
+        setCards(temCards);
+        console.log(temCards);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchCards();
+  }, []);
+
+  async function handleCardLike(card) {
+    // Verifica una vez más si a esta tarjeta ya les has dado like
+    const isLiked = card.isLiked;
+
+    // Envía una solicitud a la API y obtén los datos actualizados de la tarjeta
+    await api
+      .changeLikeCardStatus(card._id, !isLiked)
+      .then((newCard) => {
+        setCards((state) =>
+          state.map((currentCard) =>
+            currentCard._id === card._id ? newCard : currentCard
+          )
+        );
+      })
+      .catch((error) => console.error(error));
   }
-  function handleClosePopup() {
-    setPopup(null);
+
+  async function handleCardDelete(card) {
+    await api.deleteCard(card._id).then(() => {
+      setCards((prevCards) => prevCards.filter((c) => c._id !== card._id));
+    });
   }
+
   return (
     <main className="start">
       <section className="profile">
-        <img
-          src={avatar}
-          alt="Around the U.S logo"
-          className="profile__image"
-        />
-
-        <div className="profile__information">
-          <h1 className="profile__user">Jacques Cousteau</h1>
-          <p className="profile__description">Explorador</p>
+        <div className="profile__avatar">
+          <img
+            src={currentUser.avatar}
+            alt="{currentUser.name}"
+            className="profile__avatar-img"
+          />
+          <button
+            className="profile__avatar-edit"
+            onClick={() => {
+              onOpenPopup(imagePopup);
+            }}
+          ></button>
         </div>
-        <button className="profile__edition">
+        <div className="profile__information">
+          <h1 className="profile__user">{currentUser.name}</h1>
+          <p className="profile__description">{currentUser.about}</p>
+        </div>
+        <button
+          className="profile__edition"
+          onClick={() => {
+            onOpenPopup(editProfile);
+          }}
+        >
           <img
             src={lapiz}
             alt="Around the U.S logo"
@@ -79,15 +107,21 @@ export default function Main() {
       </section>
 
       <section className="gallery">
-        {cards.map((card) => (
-          <Card key={card._id} card={card} />
-        ))}
-        <div className="cards"></div>
+        <div className="cards">
+          {cards.map((card) => (
+            <Card
+              key={card._id}
+              card={card}
+              onCardLike={handleCardLike}
+              onCardDelete={handleCardDelete}
+            />
+          ))}
+        </div>
         <p className="ejemplo"></p>
       </section>
 
       {popup && (
-        <Popup onClose={handleClosePopup} title={popup.title}>
+        <Popup onClose={onClosePopup} title={popup.title}>
           {popup.children}
         </Popup>
       )}
